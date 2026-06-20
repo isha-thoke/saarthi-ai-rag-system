@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitAI - AI Fitness & Diet Planner Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+        .neon-border { box-shadow: 0 0 15px rgba(6, 182, 212, 0.15); }
+    </style>
+</head>
+<body class="custom-gradient text-slate-100 min-h-screen font-sans">
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-cyan-500 text-slate-950 p-2.5 rounded-xl font-black text-xl tracking-wider shadow-lg shadow-cyan-500/20"><i class="fa-solid fa-dumbbell mr-1"></i>FitAI</div>
+                <span class="text-xs bg-slate-800 text-cyan-400 px-2.5 py-1 rounded-full font-semibold border border-cyan-500/20">AI Agent v2.0</span>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800/80 neon-border h-fit">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center"><i class="fa-solid fa-id-card text-cyan-400 mr-2"></i>Biometric Profile</h2>
+                <form id="profileForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Age (Years)</label>
+                        <input type="number" id="age" value="25" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Weight (kg)</label>
+                            <input type="number" id="weight" value="65" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Height (cm)</label>
+                            <input type="number" id="height" value="170" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Fitness Goal</label>
+                        <select id="goal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition">
+                            <option value="weight_loss">Fat Loss & Conditioning</option>
+                            <option value="muscle_gain">Hypertrophy & Muscle Gain</option>
+                            <option value="maintenance">Lean Maintenance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Dietary Preference</label>
+                        <select id="diet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition">
+                            <option value="veg">Vegetarian</option>
+                            <option value="non_veg">Non-Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Medical Constraints / Allergies</label>
+                        <input type="text" id="allergies" value="None" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition" placeholder="e.g., Peanut allergy, lactose intolerant">
+                    </div>
+                    <button type="button" onclick="generatePlans()" class="w-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-cyan-500/20 hover:opacity-95 transition flex items-center justify-center space-x-2 cursor-pointer mt-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Generate Custom AI Plans</span>
+                    </button>
+                </form>
+            </div>
+
+<div class="lg:col-span-2 space-y-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-xs text-slate-400 font-medium mb-1">Body Mass Index (BMI)</div>
+                        <div id="bmiVal" class="text-2xl font-bold text-cyan-400">--</div>
+                    </div>
+                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-xs text-slate-400 font-medium mb-1">BMR (Calories)</div>
+                        <div id="bmrVal" class="text-2xl font-bold text-indigo-400">--</div>
+                    </div>
+                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-xs text-slate-400 font-medium mb-1">Daily TDEE Target</div>
+                        <div id="tdeeVal" class="text-2xl font-bold text-emerald-400">--</div>
+                    </div>
+                </div>
+                <div class="bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 neon-border">
+                    <div class="border-b border-slate-800 pb-4 mb-4 flex space-x-6">
+                        <button onclick="switchTab('dietTab')" id="dietBtn" class="text-lg font-bold pb-2 border-b-2 border-cyan-500 text-white transition cursor-pointer flex items-center"><i class="fa-solid fa-utensils mr-2 text-cyan-400"></i> Personalized Diet Plan</button>
+                        <button onclick="switchTab('workoutTab')" id="workoutBtn" class="text-lg font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-white transition cursor-pointer flex items-center"><i class="fa-solid fa-calendar-day mr-2 text-indigo-400"></i> Workout Regimen</button>
+                    </div>
+                    <div id="dietTab" class="tab-content space-y-4">
+                        <p class="text-slate-400 text-sm">Fill your metrics on the left and hit generate to run the evaluation engine.</p>
+                    </div>
+                    <div id="workoutTab" class="tab-content space-y-4 hidden">
+                        <p class="text-slate-400 text-sm">Fill your metrics on the left and hit generate to run the evaluation engine.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+<script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            if(tabId === 'dietTab') {
+                document.getElementById('dietBtn').className = "text-lg font-bold pb-2 border-b-2 border-cyan-500 text-white transition cursor-pointer flex items-center";
+                document.getElementById('workoutBtn').className = "text-lg font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-white transition cursor-pointer flex items-center";
+            } else {
+                document.getElementById('workoutBtn').className = "text-lg font-bold pb-2 border-b-2 border-indigo-500 text-white transition cursor-pointer flex items-center";
+                document.getElementById('dietBtn').className = "text-lg font-bold pb-2 border-b-2 border-transparent text-slate-400 hover:text-white transition cursor-pointer flex items-center";
+            }
+        }
+        function generatePlans() {
+            const w = parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(document.getElementById('height').value);
+            const a = parseInt(document.getElementById('age').value);
+            const g = document.getElementById('goal').value;
+            const d = document.getElementById('diet').value;
+            const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+            const bmr = Math.round(10 * w + 6.25 * h - 5 * a + 5);
+            let tdee = Math.round(bmr * 1.375);
+            if(g === 'weight_loss') tdee -= 400;
+            if(g === 'muscle_gain') tdee += 350;
+            document.getElementById('bmiVal').innerText = bmi;
+            document.getElementById('bmrVal').innerText = bmr;
+            document.getElementById('tdeeVal').innerText = tdee + " kcal";
+            
+            document.getElementById('dietTab').innerHTML = `
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-egg mr-2"></i>Breakfast (08:00 AM)</h4><p class="text-sm text-slate-300">Oats porridge with almonds, chia seeds, and 1 scoop plant protein (Preference: \${d.toUpperCase()})</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-bowl-rice mr-2"></i>Lunch (01:30 PM)</h4><p class="text-sm text-slate-300">150g Grilled Tofu/Chicken, 1 cup Brown Rice, mixed sautéed greens, and dal soup.</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-apple-whole mr-2"></i>Evening Snack (05:30 PM)</h4><p class="text-sm text-slate-300">A handful of roasted walnuts and 1 cup of green tea or black coffee.</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-plate-wheat mr-2"></i>Dinner (08:30 PM)</h4><p class="text-sm text-slate-300">2 Multigrain rotis, large bowl of mixed vegetable sabzi, and 100g low-fat paneer or lean protein.</p></div>`;
+            
+            document.getElementById('workoutTab').innerHTML = `
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-indigo-400 font-bold mb-1">Mon / Thu: Push Day (Chest, Shoulders, Triceps)</h4><p class="text-sm text-slate-300">Dumbbell Bench Press (3x10), Overhead Press (3x12), Lateral Raises (4x15), Tricep Pushdowns (3x12).</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-indigo-400 font-bold mb-1">Tue / Fri: Pull Day (Back & Biceps)</h4><p class="text-sm text-slate-300">Lat Pulldowns (3x10), Seated Cable Rows (3x12), Barbell Bicep Curls (3x12), Face Pulls (4–15).</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-indigo-400 font-bold mb-1">Wed / Sat: Legs & Core Focus</h4><p class="text-sm text-slate-300">Barbell Squats or Leg Press (4x10), Romanian Deadlifts (3x12), Walking Lunges, Plank Holds (3x60s).</p></div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><h4 class="text-indigo-400 font-bold mb-1">Sunday: Active Recovery</h4><p class="text-sm text-slate-300">30-45 minutes of low-intensity steady-state cardio (LISS) or yoga/stretching.</p></div>`;
+        }
+    </script>
+</body>
+</html>
